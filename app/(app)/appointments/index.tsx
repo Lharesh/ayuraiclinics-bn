@@ -8,14 +8,23 @@ import {
 } from 'react-native';
 import { format, addDays, subDays } from 'date-fns';
 import { ChevronLeft, ChevronRight, MoveVertical, Clock, Plus } from 'lucide-react-native';
-import { Card } from '@/components/ui/Card';
+import Card from '@/components/ui/Card';
 import { COLORS } from '@/constants/theme';
 
 const todayKey = format(new Date(), 'yyyy-MM-dd');
 const tomorrowKey = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 const yesterdayKey = format(subDays(new Date(), 1), 'yyyy-MM-dd');
 
-const mockAppointmentsByDate: Record<string, any[]> = {
+type AppointmentStatus = 'completed' | 'cancelled' | 'pending';
+type Appointment = {
+  id: string;
+  time: string;
+  clientName: string;
+  treatmentName: string;
+  status: AppointmentStatus;
+};
+
+const mockAppointmentsByDate: Record<string, Appointment[]> = {
   [todayKey]: [
     { id: 'a1', time: '09:00 AM', clientName: 'Ravi Kumar', treatmentName: 'Abhyanga', status: 'pending' },
     { id: 'a2', time: '10:30 AM', clientName: 'Sunita Devi', treatmentName: 'Shirodhara', status: 'completed' },
@@ -37,7 +46,7 @@ export default function AppointmentsScreen() {
   const appointments = mockAppointmentsByDate[selectedKey] || [];
 
   const getStatusCounts = () => {
-    const counts = { completed: 0, cancelled: 0, pending: 0 };
+    const counts: Record<AppointmentStatus, number> = { completed: 0, cancelled: 0, pending: 0 };
     appointments.forEach((a) => counts[a.status]++);
     return counts;
   };

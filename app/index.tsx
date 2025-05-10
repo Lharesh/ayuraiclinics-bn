@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, InteractionManager } from 'react-native';
 import { router } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import { COLORS } from '@/constants/theme';
 
 export default function LandingScreen() {

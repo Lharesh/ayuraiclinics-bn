@@ -7,25 +7,18 @@ import {
   ViewStyle,
   TextStyle,
   TouchableOpacityProps,
+  View,
 } from 'react-native';
 import { COLORS } from '@/constants/theme';
+import { ButtonProps } from './types';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonSizeStyle = {
+  fontSize: number;
+  paddingVertical: number;
+  paddingHorizontal: number;
+};
 
-interface ButtonProps extends TouchableOpacityProps {
-  title: string;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  fullWidth?: boolean;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
-}
-
-export const Button: React.FC<ButtonProps> = ({
+const Button: React.FC<ButtonProps> = ({
   title,
   variant = 'primary',
   size = 'md',
@@ -36,143 +29,81 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   ...props
-}) => {
+}: ButtonProps) => {
   const getButtonStyles = (): ViewStyle => {
-    const baseStyle: ViewStyle = {
+    const base: ViewStyle = {
       ...styles.button,
-      ...getSizeStyles(),
+      ...getSizeStyles(false, size),
     };
 
     switch (variant) {
       case 'primary':
-        return {
-          ...baseStyle,
-          backgroundColor: COLORS.vata[500],
-        };
+        return { ...base, backgroundColor: COLORS.vata[500] };
       case 'secondary':
-        return {
-          ...baseStyle,
-          backgroundColor: COLORS.neutral[200],
-        };
+        return { ...base, backgroundColor: COLORS.pitta[500] };
       case 'outline':
-        return {
-          ...baseStyle,
-          backgroundColor: 'transparent',
-          borderWidth: 1,
-          borderColor: COLORS.vata[500],
-        };
+        return { ...base, backgroundColor: 'transparent', borderWidth: 1, borderColor: COLORS.vata[500] };
       case 'ghost':
-        return {
-          ...baseStyle,
-          backgroundColor: 'transparent',
-        };
+        return { ...base, backgroundColor: 'transparent' };
       case 'destructive':
-        return {
-          ...baseStyle,
-          backgroundColor: COLORS.error,
-        };
+        return { ...base, backgroundColor: COLORS.pitta[600] };
       default:
-        return baseStyle;
+        return base;
     }
   };
 
   const getTextStyles = (): TextStyle => {
-    const baseStyle: TextStyle = {
+    const base: TextStyle = {
       ...styles.text,
-      ...getTextSizeStyles(),
+      ...getSizeStyles(true, size),
     };
 
     switch (variant) {
       case 'primary':
-        return {
-          ...baseStyle,
-          color: COLORS.white,
-        };
       case 'secondary':
-        return {
-          ...baseStyle,
-          color: COLORS.neutral[800],
-        };
-      case 'outline':
-        return {
-          ...baseStyle,
-          color: COLORS.vata[500],
-        };
-      case 'ghost':
-        return {
-          ...baseStyle,
-          color: COLORS.vata[500],
-        };
       case 'destructive':
-        return {
-          ...baseStyle,
-          color: COLORS.white,
-        };
+        return { ...base, color: COLORS.white };
+      case 'outline':
+      case 'ghost':
+        return { ...base, color: COLORS.vata[500] };
       default:
-        return baseStyle;
+        return base;
     }
   };
 
-  const getSizeStyles = (): ViewStyle => {
-    switch (size) {
-      case 'sm':
-        return {
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-        };
-      case 'lg':
-        return {
-          paddingVertical: 16,
-          paddingHorizontal: 24,
-        };
-      default:
-        return {
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-        };
-    }
-  };
+  const getSizeStyles = (isText: boolean, size: string): ButtonSizeStyle => {
+    const sizeStyles: Record<string, ButtonSizeStyle> = {
+      sm: { fontSize: 14, paddingVertical: 6, paddingHorizontal: 12 },
+      md: { fontSize: 16, paddingVertical: 8, paddingHorizontal: 16 },
+      lg: { fontSize: 18, paddingVertical: 10, paddingHorizontal: 20 },
+    };
 
-  const getTextSizeStyles = (): TextStyle => {
-    switch (size) {
-      case 'sm':
-        return {
-          fontSize: 14,
-        };
-      case 'lg':
-        return {
-          fontSize: 18,
-        };
-      default:
-        return {
-          fontSize: 16,
-        };
-    }
+    const sizeStyle = sizeStyles[size];
+    return sizeStyle;
   };
 
   return (
     <TouchableOpacity
+      {...props}
+      disabled={isLoading || props.disabled}
       style={[
         getButtonStyles(),
         fullWidth && styles.fullWidth,
-        props.disabled && styles.disabled,
         style,
       ]}
-      activeOpacity={0.7}
-      disabled={isLoading || props.disabled}
-      {...props}
+      activeOpacity={0.8}
     >
       {isLoading ? (
         <ActivityIndicator
-          color={variant === 'outline' || variant === 'ghost' ? COLORS.vata[500] : COLORS.white}
           size="small"
+          color={variant === 'outline' || variant === 'ghost' ? COLORS.vata[500] : COLORS.white}
         />
       ) : (
-        <>
-          {leftIcon && <Text style={styles.icon}>{leftIcon}</Text>}
+        <View style={styles.content}>
+          {leftIcon && <View style={styles.icon}>{leftIcon}</View>}
           <Text style={[getTextStyles(), textStyle]}>{title}</Text>
-          {rightIcon && <Text style={styles.icon}>{rightIcon}</Text>}
-        </>
+          {rightIcon && <View style={styles.icon}>{rightIcon}</View>}
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -185,17 +116,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
   },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   text: {
     fontWeight: '600',
     textAlign: 'center',
   },
+  icon: {
+    marginHorizontal: 4,
+  },
   fullWidth: {
     width: '100%',
   },
-  disabled: {
-    opacity: 0.5,
-  },
-  icon: {
-    marginHorizontal: 8,
-  },
 });
+type ButtonTextSize = {
+  fontSize: number;
+};
+
+type ButtonPaddingStyle = {
+  paddingVertical: number;
+  paddingHorizontal: number;
+};
+
+export default Button;

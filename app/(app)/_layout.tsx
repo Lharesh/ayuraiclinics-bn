@@ -12,7 +12,7 @@ import { fetchClinic } from '@/redux/slices/clinicSlice';
 import { fetchConfig } from '@/redux/slices/configSlice';
 import { COLORS } from '@/constants/theme';
 import { Settings } from 'lucide-react-native';
-import { Card } from '@/components/ui/Card';
+import Card from '@/components/ui/Card';
 import { ROLE_TABS } from '@/constants/roleConfig';
 
 export default function AppLayout() {
@@ -41,7 +41,7 @@ export default function AppLayout() {
         dispatch(fetchClinic());
         dispatch(fetchConfig());
 
-        if (segments.length === 1 && segments[0] === '(app)') {
+        if (segments.join('/') === '(app)') {
           router.replace('/appointments');
         }
       }
@@ -67,8 +67,10 @@ export default function AppLayout() {
                 key={item.route}
                 style={styles.adminMenuItem}
                 onPress={() => {
-                  router.push(item.route);
-                  setShowAdminMenu(false);
+                  if (item.route) {
+                    router.push((item.route.startsWith('/') ? item.route : `/${item.route}`) as any);
+                    setShowAdminMenu(false);
+                  }
                 }}
               >
                 <Text style={styles.adminMenuText}>{item.label}</Text>

@@ -9,7 +9,6 @@ import {
   TextInputProps as RNTextInputProps,
   TouchableOpacity,
 } from 'react-native';
-import { Eye, EyeOff } from 'lucide-react-native';
 import { COLORS } from '@/constants/theme';
 
 interface TextInputProps extends RNTextInputProps {
@@ -42,58 +41,20 @@ export const TextInput: React.FC<TextInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleFocus = () => {
-    setIsFocused(true);
-    if (props.onFocus) {
-      props.onFocus(new Event('focus') as any);
-    }
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    if (props.onBlur) {
-      props.onBlur(new Event('blur') as any);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const renderPasswordToggle = () => {
-    if (!secureTextEntry) return null;
-
-    return (
-      <TouchableOpacity onPress={togglePasswordVisibility} style={styles.passwordToggle}>
-        {showPassword ? (
-          <EyeOff size={20} color={COLORS.neutral[500]} />
-        ) : (
-          <Eye size={20} color={COLORS.neutral[500]} />
-        )}
-      </TouchableOpacity>
-    );
-  };
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+      {label && (
+        <Text style={[styles.label, labelStyle]}>{label}</Text>
+      )}
 
-      <View
-        style={[
-          styles.inputContainer,
-          isFocused && styles.focused,
-          error ? styles.error : null,
-        ]}
-      >
+      <View style={styles.inputContainer}>
         {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
 
         <RNTextInput
-          style={[
-            styles.input,
-            leftIcon && styles.inputWithLeftIcon,
-            (rightIcon || secureTextEntry) && styles.inputWithRightIcon,
-            inputStyle,
-          ]}
+          style={[styles.input, inputStyle]}
           placeholderTextColor={COLORS.neutral[400]}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -101,15 +62,28 @@ export const TextInput: React.FC<TextInputProps> = ({
           {...props}
         />
 
-        {renderPasswordToggle()}
-        {rightIcon && !secureTextEntry && <View style={styles.rightIcon}>{rightIcon}</View>}
+        {(rightIcon || secureTextEntry) && (
+          <View style={styles.rightIcon}>
+            {secureTextEntry && (
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+              </TouchableOpacity>
+            )}
+            {rightIcon}
+          </View>
+        )}
       </View>
 
-      {helper && !error && <Text style={[styles.helper, helperStyle]}>{helper}</Text>}
-      {error && <Text style={[styles.errorText, errorStyle]}>{error}</Text>}
+      {(error || helper) && (
+        <Text style={[error ? styles.error : styles.helper, error ? errorStyle : helperStyle]}>
+          {error || helper}
+        </Text>
+      )}
     </View>
   );
 };
+
+export default TextInput;
 
 const styles = StyleSheet.create({
   container: {
@@ -127,45 +101,34 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.neutral[300],
     borderRadius: 8,
-    backgroundColor: COLORS.white,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   input: {
     flex: 1,
-    height: 48,
-    paddingHorizontal: 16,
     fontSize: 16,
     color: COLORS.neutral[900],
   },
   inputWithLeftIcon: {
-    paddingLeft: 8,
+    marginLeft: 8,
   },
   inputWithRightIcon: {
-    paddingRight: 8,
+    marginRight: 8,
   },
   leftIcon: {
-    paddingLeft: 12,
+    marginRight: 8,
   },
   rightIcon: {
-    paddingRight: 12,
-  },
-  passwordToggle: {
-    padding: 12,
-  },
-  focused: {
-    borderColor: COLORS.vata[500],
-    borderWidth: 2,
+    marginLeft: 8,
   },
   error: {
-    borderColor: COLORS.error,
+    fontSize: 12,
+    color: COLORS.error,
+    marginTop: 4,
   },
   helper: {
     fontSize: 12,
     color: COLORS.neutral[500],
-    marginTop: 4,
-  },
-  errorText: {
-    fontSize: 12,
-    color: COLORS.error,
     marginTop: 4,
   },
 });

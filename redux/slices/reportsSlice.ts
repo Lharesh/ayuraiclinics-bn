@@ -1,65 +1,78 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { ReportFilters, Report } from '@/components/ui/types';
 
-export interface ReportFilters {
-  reportType: 'appointments' | 'revenue';
-  timeRange: string;
-  startDate?: string;
-  endDate?: string;
-}
-
-export interface AppointmentReport {
-  time: string;
-  clientName: string;
-  mobile: string;
-  reason: string;
-}
-
-export interface RevenueReport {
-  time: string;
-  clientName: string;
-  doctor: string;
-  amount: number;
-  reason: string;
-}
-
-interface ReportsState {
+interface State {
   filters: ReportFilters;
-  appointments: AppointmentReport[];
-  revenue: RevenueReport[];
-  isLoading: boolean;
+  appointments: Report[];
+  revenue: Report[];
+  loading: boolean;
   error: string | null;
 }
 
-const initialState: ReportsState = {
+const initialState: State = {
   filters: {
-    reportType: 'appointments',
+    type: 'appointments',
     timeRange: 'today',
+    startDate: '',
+    endDate: '',
   },
   appointments: [],
   revenue: [],
-  isLoading: false,
+  loading: false,
   error: null,
 };
 
-const MOCK_APPOINTMENTS: AppointmentReport[] = [
-  { time: '09:00', clientName: 'John Smith', mobile: '+1234567890', reason: 'Consultation' },
-  { time: '10:30', clientName: 'Sarah Johnson', mobile: '+1234567891', reason: 'Follow-up' },
+const MOCK_APPOINTMENTS: Report[] = [
+  {
+    id: '1',
+    date: '2025-05-09',
+    clientName: 'John Doe',
+    mobile: '1234567890',
+    reason: 'Consultation',
+  },
+  {
+    id: '2',
+    date: '2025-05-10',
+    clientName: 'Jane Doe',
+    mobile: '0987654321',
+    reason: 'Follow-up',
+  },
 ];
 
-const MOCK_REVENUE: RevenueReport[] = [
-  { time: '09:00', clientName: 'John Smith', doctor: 'Dr. Sharma', amount: 1200, reason: 'Consultation' },
-  { time: '10:30', clientName: 'Sarah Johnson', doctor: 'Dr. Patel', amount: 2500, reason: 'Treatment' },
+const MOCK_REVENUE: Report[] = [
+  {
+    id: '1',
+    date: '2025-05-09',
+    clientName: 'John Doe',
+    mobile: '1234567890',
+    doctor: 'Dr. Smith',
+    amount: 100,
+    reason: 'Consultation',
+  },
+  {
+    id: '2',
+    date: '2025-05-10',
+    clientName: 'Jane Doe',
+    mobile: '0987654321',
+    doctor: 'Dr. Johnson',
+    amount: 200,
+    reason: 'Treatment',
+  },
 ];
 
-// Async mock fetch for demo
 export const fetchReports = createAsyncThunk(
   'reports/fetchReports',
   async (filters: ReportFilters) => {
-    await new Promise((res) => setTimeout(res, 300));
-    return {
-      reportType: filters.reportType,
-      data: filters.reportType === 'appointments' ? MOCK_APPOINTMENTS : MOCK_REVENUE,
-    };
+    try {
+      // Replace with actual API call
+      const mockData = filters.type === 'appointments'
+        ? MOCK_APPOINTMENTS
+        : MOCK_REVENUE;
+
+      return mockData;
+    } catch (error) {
+      throw error;
+    }
   }
 );
 
@@ -67,29 +80,39 @@ const reportsSlice = createSlice({
   name: 'reports',
   initialState,
   reducers: {
-    setReportFilters(state, action: PayloadAction<ReportFilters>) {
+    setReportFilters: (state, action: PayloadAction<ReportFilters>) => {
       state.filters = action.payload;
+    },
+    clearFilters: (state) => {
+      state.filters = {
+        type: 'appointments',
+        timeRange: 'today',
+        startDate: '',
+        endDate: '',
+      };
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchReports.pending, (state) => {
-        state.isLoading = true;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(fetchReports.fulfilled, (state, action) => {
-        state.isLoading = false;
-        if (action.payload.reportType === 'appointments') {
-          state.appointments = action.payload.data;
+        state.loading = false;
+        state.error = null;
+        if (state.filters.type === 'appointments') {
+          state.appointments = action.payload as Report[];
         } else {
-          state.revenue = action.payload.data;
+          state.revenue = action.payload as Report[];
         }
       })
       .addCase(fetchReports.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch report';
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch reports';
       });
   },
 });
 
-export const { setReportFilters } = reportsSlice.actions;
+export const { setReportFilters, clearFilters } = reportsSlice.actions;
 export default reportsSlice.reducer;

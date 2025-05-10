@@ -13,7 +13,7 @@ import { ArrowLeft, Mail, Lock } from 'lucide-react-native';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { login } from '@/redux/slices/authSlice';
 import { TextInput } from '@/components/ui/TextInput';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
 import { Toast } from '@/components/ui/Toast';
 import { COLORS } from '@/constants/theme';
 
@@ -33,7 +33,7 @@ export default function LoginScreen() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace('/(app)');
+      router.replace('/');
     }
   }, [isAuthenticated]);
 

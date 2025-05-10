@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { fetchTimings, saveTimings } from '@/redux/slices/setupSlice';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 import { Picker } from '@/components/ui/Picker';
 import { COLORS } from '@/constants/theme';
 import { Toast } from '@/components/ui/Toast';
@@ -42,31 +42,32 @@ export default function ClinicTimingsScreen() {
     setEditedTimings(timings);
   }, [timings]);
 
-  const handleStatusChange = (day: string, status: string) => {
-    setEditedTimings(prev => ({
-      weekdays: {
-        ...prev.weekdays,
-        [day]: {
-          ...prev.weekdays[day],
-          isOpen: status === 'working' || status === 'half_day',
-          status,
-        },
-      },
-    }));
-  };
+  type TimingStatus = 'working' | 'half_day' | 'holiday' | 'weekly_off';
 
-  const handleTimeChange = (day: string, field: string, value: string) => {
-    setEditedTimings(prev => ({
-      weekdays: {
-        ...prev.weekdays,
-        [day]: {
-          ...prev.weekdays[day],
-          [field]: value,
-        },
+const handleStatusChange = (day: string, status: TimingStatus) => {
+  setEditedTimings(prev => ({
+    weekdays: {
+      ...prev.weekdays,
+      [day]: {
+        ...prev.weekdays[day],
+        isOpen: status === 'working' || status === 'half_day',
+        status,
       },
-    }));
-  };
+    },
+  }));
+};
 
+const handleTimeChange = (day: string, field: string, value: string) => {
+  setEditedTimings(prev => ({
+    weekdays: {
+      ...prev.weekdays,
+      [day]: {
+        ...prev.weekdays[day],
+        [field]: value,
+      },
+    },
+  }));
+};
   const validateTimings = () => {
     for (const [day, timing] of Object.entries(editedTimings.weekdays)) {
       if (timing.isOpen) {
@@ -145,7 +146,7 @@ export default function ClinicTimingsScreen() {
             label="Status"
             items={STATUS_OPTIONS}
             selectedValue={timing.status}
-            onValueChange={(value) => handleStatusChange(day, value)}
+            onValueChange={(value) => handleStatusChange(day, value as TimingStatus)}
             containerStyle={styles.picker}
           />
 

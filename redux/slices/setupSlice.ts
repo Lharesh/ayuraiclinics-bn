@@ -7,6 +7,7 @@ export interface ClinicTimings {
       isOpen: boolean;
       start: string;
       end: string;
+      status: 'working' | 'half_day' | 'holiday' | 'weekly_off';
       breakStart?: string;
       breakEnd?: string;
     };
@@ -52,13 +53,13 @@ interface SetupState {
 const initialState: SetupState = {
   timings: {
     weekdays: {
-      monday: { isOpen: true, start: '09:00', end: '18:00' },
-      tuesday: { isOpen: true, start: '09:00', end: '18:00' },
-      wednesday: { isOpen: true, start: '09:00', end: '18:00' },
-      thursday: { isOpen: true, start: '09:00', end: '18:00' },
-      friday: { isOpen: true, start: '09:00', end: '18:00' },
-      saturday: { isOpen: true, start: '09:00', end: '14:00' },
-      sunday: { isOpen: false, start: '09:00', end: '18:00' },
+      monday: { isOpen: true, start: '09:00', end: '18:00', status: 'working' },
+      tuesday: { isOpen: true, start: '09:00', end: '18:00', status: 'working' },
+      wednesday: { isOpen: true, start: '09:00', end: '18:00', status: 'working' },
+      thursday: { isOpen: true, start: '09:00', end: '18:00', status: 'working' },
+      friday: { isOpen: true, start: '09:00', end: '18:00', status: 'working' },
+      saturday: { isOpen: true, start: '09:00', end: '14:00', status: 'working' },
+      sunday: { isOpen: false, start: '09:00', end: '18:00', status: 'working' },
     },
   },
   treatmentSlots: [],
